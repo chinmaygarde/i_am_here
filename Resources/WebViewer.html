@@ -1,0 +1,33 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<title>Loading...</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function(){
+			var browserUrl = Titanium.App.Properties.getString('BrowserURL');
+			Titanium.App.Properties.setString('BrowserURL', '');
+			
+			var openInBrowserButton = Titanium.UI.createButton({
+			    systemButton:Titanium.UI.iPhone.SystemButton.ACTION
+			});
+			openInBrowserButton.addEventListener('click',function(e)
+			{
+				Titanium.Platform.openURL( browserUrl );
+			});
+			Titanium.UI.currentWindow.setRightNavButton(openInBrowserButton);
+			
+			var browser = Titanium.UI.createWebView({url:browserUrl, name:'browser'});
+			Titanium.UI.currentWindow.addView(browser);
+			Titanium.UI.currentWindow.showView(browser);	
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<!-- <div id="activity">
+	    <p>Getting Updates</p>
+        <img src="images/loader.gif">
+    </div> -->
+</body>
+</html>

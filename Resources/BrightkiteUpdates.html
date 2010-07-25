@@ -1,0 +1,77 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	<title>Updates</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+		$(document).ready(function(){
+			var tableData = [];
+			var pictureLinkData = [];
+			var name = Titanium.App.Properties.getString('BrightkiteUser');
+			Titanium.App.Properties.setString('BrightkiteUser', '');
+			try
+			{
+				var xhr = Titanium.Network.createHTTPClient();
+				xhr.open('GET', 'http://brightkite.com/people/'+name+'/objects.json?filters=notes,photos');
+				xhr.onreadystatechange = function()
+				{
+					if (this.readyState == xhr.DONE)
+					{
+						pictureLinkData = [];
+						tableData = [];
+						var res = JSON.parse(this.responseText);
+						for (var i=0; i < res.length; i++) 
+						{
+							var bodyText = res[i].body;
+							var photoUrl = res[i].photo;
+							if(bodyText == null || bodyText == "" || bodyText == undefined)
+							{
+								bodyText = "None";
+							}
+							if(photoUrl == null || photoUrl == undefined)
+							{
+								photoUrl = "No Photo";
+							}
+							pictureLinkData.push(photoUrl);
+							var displayHtml = '<div><p style="font-family:Arial">'+ bodyText +'</p></div>';
+							if(res[i].object_type == 'note')
+							{
+								tableData.push({html: displayHtml, hasChild:false});								
+							}
+							else if(res[i].object_type == 'photo')
+							{
+								tableData.push({html: displayHtml, hasChild:true});
+							}
+						};
+						var tableView = Titanium.UI.createTableView({data:tableData,title:'Updates', rowHeight:80}, function(eventObject) {
+							if(pictureLinkData[eventObject.index] != "No Photo")
+							{
+								Titanium.App.Properties.setString('BrowserURL', pictureLinkData[eventObject.index]);
+								var photoWindow = Titanium.UI.createWindow({url:'PictureViewer.html', barColor:"#2997de"});
+								photoWindow.open({animated:true});								
+							}
+						});
+						tableView.setBarColor('#2997de');
+						Titanium.UI.currentWindow.addView(tableView);
+						Titanium.UI.currentWindow.showView(tableView);
+						xhr = null;
+					}
+				};
+				xhr.send();
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			};
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<div id="activity">
+	    <p>Getting Updates</p>
+        <img src="images/loader.gif">
+    </div>
+</body>
+</html>

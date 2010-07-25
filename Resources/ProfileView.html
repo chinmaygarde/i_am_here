@@ -1,0 +1,80 @@
+<html>
+	<head>
+		<title>Profile</title>
+		<script src="jquery-1.3.2.js" type="text/javascript" charset="utf-8"></script>
+		<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" href="index.css" type="text/css" charset="utf-8">
+		<script type="text/javascript" charset="utf-8">
+			var loginName;
+			var latitude = '';
+			var longitude = '';
+			
+			function viewUpdates(name)
+			{
+				Titanium.App.Properties.setString('BrightkiteUser',name);
+				var win = Titanium.UI.createWindow({url:'BrightkiteUpdates.html', barColor:'#2997de'});
+				win.open({animated:true});
+			}
+			$(document).ready(function(){
+				try
+				{
+					var xhr = Titanium.Network.createHTTPClient();
+					xhr.open('GET', 'http://brightkite.com/people/' + Titanium.App.Properties.getString('login') + '.json');
+					Titanium.App.Properties.setString('login', '');
+					xhr.onreadystatechange = function()
+					{
+						if (this.readyState == xhr.DONE)
+						{
+							var res = JSON.parse(this.responseText);
+							loginName = res.login;
+							$('#name').html((res.fullname==null)?res.login:res.fullname);
+							$('#avatar').html('<img src="' + res.small_avatar_url + '"/>');
+							$('#details').html('<font size=".75em">'+ res.description +'</font><br /><strong>Last checked in</strong>: '+ res.last_checked_in_as_words +'<br /><strong>Friends</strong>: '+res.friends_count+'<br /><strong>Website</strong>: '+res.website);
+							latitude = res.place.latitude;
+							longitude = res.place.longitude;
+							$('#viewMapButton').css("visibility", "visible");
+							$('#viewUpdatesButton').css("visibility", "visible");
+							xhr = null;
+						}
+					}
+					xhr.send();
+				}
+				catch(e)
+				{
+					Titanium.API.debug(String(e));
+				}
+				$('#viewUpdatesButton').click(function(){
+					viewUpdates(loginName);
+				});
+				$('#viewMapButton').click(function(){		
+					var mapInfo = {url:'http://maps.google.com/staticmap?center=' + latitude + ',' + longitude + '&zoom=14&size=320x370&maptype=mobile&markers=' + latitude + ','  + longitude +',blues%7C40.711614,-74.012318,greeng%7C40.718217,-73.998284,redc&key=ABQIAAAAB8WYHZm4-i29TiMzCUMDAxQjuUndVhI-15xxOealmSSy1DPdWBTeFYo7vgVU7rBvtNDvHTet313YOw&sensor=true', latlong: latitude + ',' + longitude}			
+					Titanium.App.Properties.setString('MapInfo', JSON.stringify(mapInfo));
+					var win = Titanium.UI.createWindow({url:'MapView.html', barColor:'#2997de', title:'Map'});
+					win.open({animated:true});					
+				});
+			});
+		</script>
+	</head>
+	<body>
+    <div id="floatingLogo"></div>
+    	<div id="profileMain">
+        	<div id="header">
+            <fieldset id="topFieldset">
+            	<div id="imageDiv">
+                	<p id="avatar"></p>
+                </div>
+                <div id="nameDiv">
+                	<h4 id="name"></h4>
+                </div>
+        	</fieldset>
+            <br />
+            </div>
+            <fieldset id="bottomFieldset">
+            	<legend>Details</legend>
+                <p id="details">Loading Details</p>
+                <input type="button" name="viewUpdatesButton" value="View Recent Updates" id="viewUpdatesButton" style="visibility:hidden"> 
+				<input type="button" name="viewMapButton" value="View On Map" id="viewMapButton" style="visibility:hidden">
+            </fieldset>
+        </div>
+	</body>
+</html>

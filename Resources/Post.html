@@ -1,0 +1,289 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="URLEncodeDecode.js" type="text/javascript" charset="utf-8"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	<title>Post</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+		var postUrl = '';
+		var postType = '';
+		function logoutUser()
+		{
+			Titanium.App.Properties.setString('UserName', '');
+			Titanium.App.Properties.setString('Password', '');
+			$('#username').attr('value', '');
+			$('#password').attr('value', '');
+			$('#updates').fadeOut('slow', function(){
+				$('#signIn').fadeIn('slow');
+			});
+		}
+		function showAlert(title, message)
+		{
+			var a = Titanium.UI.createAlertDialog();
+			a.setTitle(title);
+			a.setButtonNames(['OK']);
+			a.setMessage(message); 
+			a.show();
+		}
+		function findMyPosition()
+		{
+			Titanium.API.debug("Finding current location");
+			var watchID = Titanium.Geolocation.getCurrentPosition(function(pos) 
+			{
+				Titanium.Geolocation.clearWatch(watchID);
+			   	var coords = pos.coords;
+				Titanium.API.debug(coords.latitude + "     " + coords.longitude);
+				getLocationId(coords.latitude, coords.longitude);
+			});
+		}
+		function getLocationId (latitude, longitude)
+		{
+			Titanium.API.debug("Got location ID");
+			try
+			{
+				var xhr = Titanium.Network.createHTTPClient();
+				xhr.open('GET', 'http://brightkite.com/places/search.json?q=' + latitude + '%20' + longitude);
+				xhr.onreadystatechange = function()
+				{
+					if (this.readyState == xhr.DONE)
+					{
+						var res = JSON.parse(this.responseText);
+						if(postType == 'note')
+						{
+							postNote('http://' + $('#username').attr('value') + ':' + $('#password').attr('value')  +'@brightkite.com/places/' + res.id + '/notes.json');
+						}
+						else if(postType == 'photo')
+						{
+							postPhoto('http://' + $('#username').attr('value') + ':' + $('#password').attr('value')  +'@brightkite.com/places/' + res.id + '/photos.json');
+						}
+						else if(postType == 'checkin')
+						{
+							checkinAt('http://' + $('#username').attr('value') + ':' + $('#password').attr('value')  +'@brightkite.com/places/' + res.id + '/checkins.json');
+						}
+						postType = '';
+						xhr = null;
+					}
+				}
+				xhr.send();
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			}
+		}
+		function checkinAt(checkinUrl)
+		{
+			try
+			{
+				var xhr2 = Titanium.Network.createHTTPClient();
+				xhr2.open('POST', checkinUrl);
+				xhr2.onreadystatechange = function()
+				{
+					if (this.readyState == xhr2.DONE)
+					{
+						if (this.responseText == 'Couldn\'t authenticate you')
+						{
+							showAlert('Error', 'Incorrect Username/Password');
+							logoutUser();
+						}
+						else
+						{
+							var response = JSON.parse(this.responseText);
+							if(response.object_type=='checkin')
+							{
+								showAlert('Success', 'Successfully Checked In');
+							}
+							else
+							{
+								showAlert('Error', 'Error while checking in');
+							}
+						};
+						xhr2 = null;
+					}
+				};
+				xhr2.send({'note[body]':$('#updateInput').attr('value')});
+				$('#updateInput').attr('value', '');
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			}
+		}
+		function postNote(notePostUrl)
+		{
+			try
+			{
+				var xhr2 = Titanium.Network.createHTTPClient();
+				xhr2.open('POST', notePostUrl);
+				xhr2.onreadystatechange = function()
+				{
+					if (this.readyState == xhr2.DONE)
+					{
+						if (this.responseText == 'Couldn\'t authenticate you')
+						{
+							showAlert('Error', 'Incorrect Username/Password');
+							logoutUser();
+						}
+						else
+						{
+							var response = JSON.parse(this.responseText);
+							if(response.object_type=='note')
+							{
+								showAlert('Success', 'Successfully Posted Note');
+							}
+							else
+							{
+								showAlert('Error', 'Error while posting');
+							}
+						};
+						xhr2 = null;
+					}
+				};
+				xhr2.send({'note[body]':$('#updateInput').attr('value')});
+				$('#updateInput').attr('value', '');
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			}
+		}
+		function photoSelectionSuccess(image, details)
+		{
+			try
+			{
+				var xhr2 = Titanium.Network.createHTTPClient();
+				xhr2.open('POST', postUrl);
+				xhr2.onreadystatechange = function()
+				{
+					if (this.readyState == xhr2.DONE)
+					{
+						if (this.responseText == 'Couldn\'t authenticate you')
+						{
+							showAlert('Error', 'Incorrect Username/Password');
+							logoutUser();
+						}
+						else
+						{
+							var response = JSON.parse(this.responseText);
+							if(response.object_type=='photo')
+							{
+								showAlert('Success', 'Successfully Posted Photo');
+							}
+							else
+							{
+								showAlert('Error', 'Error while posting');
+							}
+						};
+						xhr2 = null;
+					}
+				};
+				xhr2.send({'photo[body]': $('#updateInput').attr('value'), 'photo[photo]':image});
+				$('#updateInput').attr('value', '');
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			};
+		}
+		function postPhoto(photoPostUrl)
+		{
+			postUrl = photoPostUrl;
+			var dialog = Titanium.UI.createOptionDialog();			
+			dialog.setOptions(["Camera","Image Library","Cancel"]);				
+			dialog.setCancel(2);
+			dialog.setTitle('Pick Photo From');
+
+			dialog.addEventListener('click',function(event)
+			{
+				if(event.index == 0)
+				{
+					Titanium.Media.showCamera({allowImageEditing:true, success:photoSelectionSuccess});
+				}
+				else if(event.index == 1)
+				{
+					Titanium.Media.openPhotoGallery({allowImageEditing:true, success:photoSelectionSuccess});
+				}
+			});	
+
+			dialog.show();
+		}
+		function startupCheck () 
+		{
+			if (Titanium.Network.networkType == Titanium.Network.NETWORK_NONE)
+			{
+				var a = Titanium.UI.createAlertDialog({
+				  title:"Internet Connection Required",
+				  message:"Cannot detect an internet connection. Please connect and retry."
+				});
+				a.show();
+			}
+		}
+		$(document).ready(function(){
+			startupCheck();
+			$('#updates').hide();
+			var cachedUsername = Titanium.App.Properties.getString('UserName');
+			var cachedPassword = Titanium.App.Properties.getString('Password');
+			$('#username').attr('value', ((cachedUsername == null) ? '' : cachedUsername));
+			$('#password').attr('value', ((cachedPassword == null) ? '' : cachedPassword));
+
+			$('#logoutButton').click(function(){
+				logoutUser();
+			});
+			$('#postNoteButton').click(function(){
+				postType = 'note';
+				findMyPosition();
+			});
+			$('#postPhotoButton').click(function(){
+				postType = 'photo';
+				findMyPosition();
+			});
+			$('#checkinButton').click(function(){
+				postType = 'checkin';
+				findMyPosition();
+			});
+			$('#authenticateButton').click(function(){
+				if($('#username').attr('value') == '' || $('#password').attr('value') == '')
+				{
+					var a = Titanium.UI.createAlertDialog();
+					a.setTitle('Error');
+					a.setButtonNames(['OK']);
+					a.setMessage('Please specify your username and password'); 
+					a.show();
+				}
+				else
+				{
+					Titanium.App.Properties.setString('UserName',$('#username').attr('value'));
+					Titanium.App.Properties.setString('Password',$('#password').attr('value'));
+
+					$('#signIn').fadeOut('slow', function(){
+						$('#updates').fadeIn('slow');					
+					});					
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<div id="auth">
+    	<fieldset id="signIn">
+        	<legend><img src="images/brightkite.png" style="vertical-align:middle; -webkit-border-radius:5px;"> Brightkite SignIn</legend>
+			<p><label for="username">Username</label><input type="text" name="username" value="" id="username" placeholder="Username"></p>
+			<p><label for="password">Password </label><input type="password" name="password" value="" id="password" placeholder="Password"></p>
+            <p class="submit"><input type="button" name="authenticateButton" value="Sign In" id="authenticateButton"></p>
+        </fieldset>
+        <br />
+        <fieldset id="updates">
+        	<legend>Updates</legend>
+			<p><label for="update">Update</label><input type="text" name="updateInput" value="" id="updateInput" placeholder="note..."></p>
+			<p class="submit">
+				<input type="button" name="checkinButton" value="Check In" id="checkinButton">
+				<input type="button" name="postNoteButton" value="Post Note" id="postNoteButton">
+				<input type="button" name="postPhotoButton" value="Post Photo" id="postPhotoButton"><br /><br />
+				<input type="button" name="logoutButton" value="Sign Out" id="logoutButton" style="width:100px">
+			</p>
+		</fieldset>
+	</div>
+</body>
+</html>

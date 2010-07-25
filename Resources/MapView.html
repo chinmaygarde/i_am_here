@@ -1,0 +1,34 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	<title>Map</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+
+		function showMap()
+		{
+			var map = JSON.parse(Titanium.App.Properties.getString('MapInfo'));
+			Titanium.App.Properties.setString('MapInfo', '');
+			var webView = Titanium.UI.createWebView({url:map.url, name:'map'});
+			Titanium.UI.currentWindow.addView(webView);
+			Titanium.UI.currentWindow.showView(webView);
+			var openInMapsButton = Titanium.UI.createButton({
+			    systemButton:Titanium.UI.iPhone.SystemButton.ACTION
+			});
+			openInMapsButton.addEventListener('click',function(e)
+			{
+				Titanium.Platform.openURL( "http://maps.google.com/maps?ll=" + map.latlong + "&z=15");
+			});
+			Titanium.UI.currentWindow.setRightNavButton(openInMapsButton);
+		}
+		$(document).ready(function(){
+			Titanium.UI.currentWindow.setTitleImage('images/Empty.png');
+			showMap();
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+</body>
+</html>

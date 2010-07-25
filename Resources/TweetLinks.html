@@ -1,0 +1,37 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	
+	<title>Links</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+
+		function displayLinks()
+		{
+			var links = Titanium.App.Properties.getString('TweetLinks');
+			Titanium.App.Properties.setString('TweetLinks', '');
+			var linkData = JSON.parse(links);
+			var tableView2 = Titanium.UI.createTableView({data:linkData,title:'Links',name:'tweetsTable'}, function(eventObject){
+				Titanium.App.Properties.setString('BrowserURL', eventObject.rowData.html);
+				var webView = Titanium.UI.createWindow({url:"WebViewer.html", barColor:'#2997de'});
+				webView.open({animated:true});
+			});
+			tableView2.setBarColor('#2997de');
+			Titanium.UI.currentWindow.addView(tableView2);
+			Titanium.UI.currentWindow.showView(tableView2);								
+			
+		}
+		$(document).ready(function(){
+			displayLinks();
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<!-- <div id="activity">
+	    <p>Finding People</p>
+        <img src="images/loader.gif">
+    </div> -->
+</body>
+</html>

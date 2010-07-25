@@ -1,0 +1,81 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="URLEncodeDecode.js" type="text/javascript" charset="utf-8"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	
+	<title>People</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+		var rad = 100000;
+		function findPeopleNear(term)
+		{
+			try
+			{
+				var xhr = Titanium.Network.createHTTPClient();
+				xhr.open('GET', 'http://brightkite.com/places/search.json?q='+Url.encode(term));
+				xhr.onreadystatechange = function()
+				{
+					if (this.readyState == xhr.DONE)
+					{
+						var res = JSON.parse(this.responseText);
+						getNearbyFeed('http://brightkite.com/places/' + res.id + '/people.json?radius=' + rad);
+						xhr = null;
+					}
+				}
+				xhr.send();
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			}
+		}
+		var nearbyTableData = [];
+		function getNearbyFeed(url)
+		{
+			Titanium.App.Properties.setString('PeopleUrl', url);
+			var peopleWin = Titanium.UI.createWindow({url:'BrightkitePeople.html', title:'Title', barColor:'#2997de'});
+			peopleWin.open({animated:true});
+			
+		}
+		function startupCheck () 
+		{
+			if (Titanium.Network.networkType == Titanium.Network.NETWORK_NONE)
+			{
+				var a = Titanium.UI.createAlertDialog({
+				  title:"Internet Connection Required",
+				  message:"Cannot detect an internet connection. Please connect and retry."
+				});
+				a.show();
+			}
+		}
+		$(document).ready(function(){
+			startupCheck();
+			$('#searchButton').click(function(){
+				Titanium.API.debug("Getting people near");
+				var select = document.getElementById("radius");
+				rad = select.options[select.selectedIndex].value;
+				findPeopleNear($('#searchInput').attr('value'));
+				$('#searchInput').attr('value', '');
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<div id="peopleNearMain">
+    	<fieldset>
+			<legend><img src="images/brightkite.png" style="vertical-align:middle; -webkit-border-radius:5px;"> Search for People</legend>
+            <p><label for="search">Search near </label><input type="text" name="searchInput" value="" id="searchInput" placeholder="this place..."></p>
+            <p>but within <select name="radius" id="radius">
+                <option value="100000">100</option>
+                <option value="50000">50</option>
+                <option value="25000">25</option>
+                <option value="10000">10</option>
+                <option value="5000">5</option>		
+            </select> km<br /></p>
+            <p><input type="button" name="searchButton" value="Search" id="searchButton"></p>
+    	</fieldset>
+    </div>
+</body>
+</html>

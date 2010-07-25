@@ -1,0 +1,88 @@
+<html>
+<head>
+	<script type="text/javascript" src="jquery-1.3.2.js"></script>
+	<script src="URLEncodeDecode.js" type="text/javascript" charset="utf-8"></script>
+	<script src="json2.min.js" type="text/javascript" charset="utf-8"></script>
+	
+	<title>Search</title>
+	<link href="index.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" charset="utf-8">
+
+		function findSpecifiedLocation()
+		{
+			try
+			{
+				var xhr = Titanium.Network.createHTTPClient();
+				xhr.open('GET', 'http://brightkite.com/places/search.json?q=' + Url.encode($('#nearText').attr('value')));
+				$('#nearText').attr('value','');
+				xhr.onreadystatechange = function()
+				{
+					if (this.readyState == xhr.DONE)
+					{
+						var res = JSON.parse(this.responseText);
+						searchNear(res.latitude, res.longitude);
+						xhr = null;
+					}
+				}
+				xhr.send();
+			}
+			catch(e)
+			{
+				Titanium.API.debug(String(e));
+			}
+		}
+		function findMyLocation()
+		{
+			var watchID = Titanium.Geolocation.getCurrentPosition(function(pos) 
+			{
+				Titanium.Geolocation.clearWatch(watchID);
+			   	var coords = pos.coords;
+				searchNear(coords.latitude, coords.longitude);
+			});
+		}
+
+		function searchNear (latitude, longitude)
+		{
+			Titanium.App.Properties.setString('TweetSearchURL', 'http://search.twitter.com/search.json?q=' + Url.encode($('#searchInput').attr('value')) + '&geocode=' + latitude + '%2C' + longitude + '%2C25km');
+			var tweetsWindow = Titanium.UI.createWindow({url:'Tweets.html', barColor:'#2997de', title:'Tweets'});
+			tweetsWindow.open({animated:true});
+			$('#searchInput').attr('value','');			
+		}
+		function startupCheck () 
+		{
+			if (Titanium.Network.networkType == Titanium.Network.NETWORK_NONE)
+			{
+				var a = Titanium.UI.createAlertDialog({
+				  title:"Internet Connection Required",
+				  message:"Cannot detect an internet connection. Please connect and retry."
+				});
+				a.show();
+			}
+		}
+		$(document).ready(function(){
+			startupCheck();
+			$('#searchNearMeButton').click(function(){
+
+				findMyLocation();
+			});
+			$('#searchButton').click(function(){
+				findSpecifiedLocation();
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="floatingLogo"></div>
+	<div id="twitterMain">
+    	<fieldset>
+        	<legend><img src="images/twitter.png" style="vertical-align:middle"> Twitter Search</legend>
+            <p><label for="search">Search for </label><input type="text" placeholder="this thing..." name="searchInput" value="" id="searchInput"></p>
+            <p><input type="button" name="nearMe" value="Search Near Me" id="searchNearMeButton"></p>
+        </fieldset>
+		<br />
+		<fieldset>
+			<p><label for="near">near </label><input type="text" name="nearText" value="" placeholder="this place..." id="nearText"><input type="button" name="searchButton" value="Search" id="searchButton"></p>
+		</fieldset>
+	</div>	
+</body>
+</html>

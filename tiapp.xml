@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><ti:app xmlns:ti="http://ti.appcelerator.org">
+<id>me.buzzyand.youarehere</id>
+<name>I Am Here!</name>
+<version>1.0</version>
+<icon>appicon.png</icon>
+		<persistent-wifi>false</persistent-wifi>
+		<prerendered-icon>true</prerendered-icon>
+		<statusbar-style>opaque</statusbar-style>
+	    <windows>
+	        <window>
+	            <id>initial</id>
+	            <url>Post.html</url>
+				<title>Post</title>
+	            <backgroundColor>#2997de</backgroundColor>
+				<icon>images/post.png</icon>
+				<barColor>#2997de</barColor>
+				<fullscreen>false</fullscreen>
+	        </window>
+	        <window>
+	            <id>nearby</id>
+	            <url>Nearby.html</url>
+				<title>Nearby</title>
+	            <backgroundColor>#2997de</backgroundColor>
+				<icon>images/nearby.png</icon>
+				<barColor>#2997de</barColor>
+				<fullscreen>false</fullscreen>
+	        </window>
+	        <window>
+	            <id>twitter</id>
+	            <url>Search.html</url>
+				<title>Search</title>
+	            <backgroundColor>#2997de</backgroundColor>
+				<icon>images/search.png</icon>
+				<barColor>#2997de</barColor>
+				<fullscreen>false</fullscreen>
+	        </window>
+	        <window>
+	            <id>search</id>
+	            <url>People.html</url>
+				<title>People</title>
+	            <backgroundColor>#2997de</backgroundColor>
+				<icon>images/people.png</icon>
+				<barColor>#2997de</barColor>
+				<fullscreen>false</fullscreen>
+	        </window>
+	    </windows>
+	<guid>14fa57ce783b445caa0a16b2a9bcfb8a</guid>
+</ti:app>

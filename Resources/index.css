@@ -1,0 +1,154 @@
+body
+{
+	background-color:#FFF;
+	color:#FFF;
+	font-family:Arial;
+	background-attachment: fixed;
+	background-image: url(images/BG.jpg);
+	background-repeat: no-repeat;
+}
+
+h1,h2
+{
+	color:#000;
+}
+
+p
+{
+	margin-bottom:20px;
+}
+#activity
+{
+	text-align:center;
+	vertical-align:middle;
+}
+#auth p
+{
+	margin-bottom:5px;
+}
+#auth label
+{
+	
+	float: left;
+	text-align: right;
+	display: block
+}
+#auth input
+{
+	color:#000;	
+}
+#auth
+{
+	text-align:center;	
+}
+#auth fieldset
+{
+	-webkit-border-radius:10px;
+	border: 1px solid #FFFFFF;
+	width: 270px;
+	background-image:url(images/blank.png);
+	background-repeat:repeat;
+}
+
+#auth legend
+{
+	-webkit-border-radius:5px;
+	text-align:left;
+	color: #fff;
+	background: #06C;
+	border: 1px solid #FFFFFF;
+	padding: 2px 6px;
+}
+#twitterMain
+{
+	text-align:center
+}
+#twitterMain legend
+{
+	-webkit-border-radius:5px;
+	text-align:left;
+	color: #fff;
+	background: #06C;
+	border: 1px solid #FFFFFF;
+	padding: 2px 6px;
+}
+#twitterMain fieldset
+{
+	-webkit-border-radius:10px;
+	border: 1px solid #FFFFFF;
+	width: 270px;
+	background-image:url(images/blank.png);
+	background-repeat:repeat;
+}
+
+#peopleNearMain {
+	text-align:center
+}
+#peopleNearMain legend
+{
+	-webkit-border-radius:5px;
+	text-align:left;
+	color: #fff;
+	background: #06C;
+	border: 1px solid #FFFFFF;
+	padding: 2px 6px;
+}
+#peopleNearMain fieldset{
+	-webkit-border-radius:10px;
+	border: 1px solid #FFFFFF;
+	width: 270px;
+	background-image:url(images/blank.png);
+	background-repeat:repeat;
+}
+#profileMain {
+	text-align:center
+}
+#profileMain legend
+{
+	-webkit-border-radius:5px;
+	text-align:left;
+	color: #fff;
+	background: #06C;
+	border: 1px solid #FFFFFF;
+	padding: 2px 6px;
+}
+#profileMain fieldset{
+	-webkit-border-radius:10px;
+	border: 1px solid #FFFFFF;
+	width: 270px;
+	background-image:url(images/blank.png);
+	background-repeat:repeat;
+}
+#topFieldset
+{
+	height:70px;	
+}
+#bottomFieldset
+{
+	text-align:left;
+}
+#profileMain #imageDiv
+{
+	text-align:left;
+	position:relative;
+	left:10px;
+	top:0px;
+}
+#profileMain #nameDiv
+{
+	position:relative;
+	left:-10px;
+	top:-55px;
+}
+#floatingLogo {
+	width: 180px; 
+	height:180px; 
+	float:right; 
+	right:0px; 
+	bottom:0px; 
+	position: absolute; 
+	background-repeat: no-repeat; 
+	z-index:-1; 
+	background-image:url(images/float_globe.png); 
+	background-position: center center; 
+}
